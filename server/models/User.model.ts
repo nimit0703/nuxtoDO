@@ -3,10 +3,12 @@ import { generateHash } from "../utils/hash";
 import bcrypt from 'bcryptjs';
 
 export interface UserDocument extends Document {
-  name: string;
-  email: string;
-  password: string;
-  stripeCustomerId ?: string;
+  name: string,
+  email: string,
+  password: string,
+  stripeCustomerId ?: string,
+
+  comparePassword :(password:string)=>Promise<boolean>,
 }
 const userSchema = new Schema(
   {
@@ -39,6 +41,7 @@ userSchema.pre("save", async function(next) {
     
     if(!this.isModified('password')) return next();
 
+    //@ts-ignore
     this.password = await generateHash(this.password);
 })
 
