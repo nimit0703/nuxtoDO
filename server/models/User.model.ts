@@ -6,7 +6,7 @@ export interface UserDocument extends Document {
   name: string;
   email: string;
   password: string;
-  stripeCustomerId?: string;
+  stripeCustomerId ?: string;
 }
 const userSchema = new Schema(
   {
