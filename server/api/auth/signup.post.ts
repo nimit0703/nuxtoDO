@@ -5,9 +5,9 @@ import { User } from "~/server/models/User.model";
 
 export default defineEventHandler(async (event) => {
 
-  const data = await readBody(event);
-  Validator.validateSchema(SignupSchemas, data);
-  const user = await User.create(data);
+  const body = await readBody(event);
+  Validator.validateSchema(SignupSchemas, body);
+  const user = await User.create(body);
 
   return {...user.toObject(),password:undefined}
 });
