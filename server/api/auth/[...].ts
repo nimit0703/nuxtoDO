@@ -21,7 +21,7 @@ export default NuxtAuthHandler({
       async authorize(credential: { email: string; password: string }) {
         // Authorize the user
 
-        const user = await User.findOne({ email: credential.email });
+        const user = await User.findOne({ email: credential.email }).select("+password");
 
         if (!user) {
           return null;
