@@ -8,9 +8,17 @@ export default defineNuxtConfig({
     auth:{
       secret: process.env.AUTH_SECRET,
       origin: process.env.AUTH_ORIGIN
+    },
+    public:{
+      pixabayApiKey: process.env.PIXABAY_API_KEY
     }
   },
-  modules:['@nuxt/ui', 'nuxt-server-utils','@sidebase/nuxt-auth'],
+  modules:[
+    '@nuxt/ui',
+    'nuxt-server-utils',
+    '@sidebase/nuxt-auth',
+    '@nuxt/image'
+  ],
 
   ui:{},
   

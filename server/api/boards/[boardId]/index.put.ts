@@ -11,12 +11,13 @@ export default defineEventHandler(async (event) => {
   const board = await Board.findOneAndUpdate(
     {
       _id: boardId,
-      owener: user._id,
+      owner: user._id,
     },
     {
       $set: body,
     }
   );
+  
 
   return board;
 });
