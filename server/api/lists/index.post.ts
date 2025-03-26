@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
   await Board.findOneAndUpdate(
     {
       _id: body.board,
-      owner: user.id,
+      owner: user._id,
     },
     {
       $push: {
