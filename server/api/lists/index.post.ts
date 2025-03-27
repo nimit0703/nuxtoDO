@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
 
   const list = await List.create({
     ...body,
-    owner: user.id,
+    owner: user._id,
   });
 
   if (!list) {

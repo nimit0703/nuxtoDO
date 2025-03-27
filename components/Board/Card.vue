@@ -7,7 +7,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-// const { destroy } = useBoard();
+const { destroy } = useBoard();
 const refreshBoards = inject("refresh-boards") as () => void;
 
 const actions = ref([
@@ -24,7 +24,7 @@ const actions = ref([
     {
       label: "Delete",
       icon: "i-heroicons-trash",
-      click: () => "destroy(props.board._id, refreshBoards)",
+      click: () => destroy(props.board._id, refreshBoards),
     },
   ],
 ]);
