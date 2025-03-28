@@ -1,5 +1,5 @@
 <template>
-  <WapperAuth title="Sign In to your account">
+  <WrapperAuth title="Sign In to your account">
     <UForm :state="formState" :schema="SigninSchemas" class="mt-4">
       <UFormGroup class="mb-4" name="email" label="Email">
         <UInput v-model="formState.email" type="email" />
@@ -12,7 +12,7 @@
         <NuxtLink to="/auth/signup"> Dont have an account? Sign up </NuxtLink>
       </div>
     </UForm>
-  </WapperAuth>
+  </WrapperAuth>
 </template>
 
 <script lang="ts" setup>

@@ -1,5 +1,5 @@
 <template>
-  <WapperAuth title="Create an account for free">
+  <WrapperAuth title="Create an account for free">
     <template #header>
       <span class="text-sm mr-px">Already have an account?</span>
       <NuxtLink to="/auth/signin" class="text-primary-500"> Sign In </NuxtLink>
@@ -37,7 +37,7 @@
         </UButton>
       </UFormGroup>
     </UForm>
-  </WapperAuth>
+  </WrapperAuth>
 </template>
 <script lang="ts" setup>
 import type { FormSubmitEvent } from "@nuxt/ui/dist/runtime/types";

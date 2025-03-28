@@ -36,11 +36,14 @@ const actions = ref([
       <div class="absolute w-full h-full z-[2] bg-gradient-to-b from-black/90 to-transparent"></div>
     </div>
 
-    <div class="flex items-center gap-2 absolute  left-2 z-10 top-0 py-2 px-4">
-      <NuxtLink :to="{
-        name: 'boardId',
-        params: { boardId: board._id }
-      }" class="block font-semibold text-white">{{ board.name }} </NuxtLink>
+    <div class="flex items-center justify-between gap-2 absolute  right-2 z-10 top-0 py-2 px-auto">
+      <div class="">
+        <NuxtLink :to="{
+          name: 'boardId',
+          params: { boardId: board._id }
+        }" class="block font-semibold text-white text-right line-clamp-1">{{ board.name }} 
+        </NuxtLink>
+      </div>
       <UDropdown :items="actions">
         <UIcon name="i-heroicons-cog-6-tooth" class="text-white"></UIcon>
       </UDropdown>

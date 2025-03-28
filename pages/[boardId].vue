@@ -37,15 +37,24 @@ const lists = computed(() => data.value?.lists as ListDocument[]);
       backgroundImage: `url(${coverImage})`,
       backgroundSize: 'cover',
       backgroundPosition: 'center',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundBlendMode: 'multiply',
     }"
   >
+  
     <template #actions>
       <UButton @click="showCreateList = true" size="xs">Create a list</UButton>
     </template>
-
-    <h1 class="tex-3xl font-semibold mb-4 inline-block">
-      {{ data!.name }}
-    </h1>
+    <div class="flex items-center">
+      <h1 class="text-3xl font-semibold mb-4 inline-block mr-5">
+        {{ data!.name }}
+      </h1>
+      <div class="">
+        <NuxtLink to="/" class="">
+          <UIcon name="i-heroicons-arrow-left-start-on-rectangle-solid" class="text-2xl hover:text-primary-800"></UIcon>
+        </NuxtLink>
+      </div>
+    </div>
 
     <ListContainer :lists="lists" :board-id="(boardId as string)" />
 

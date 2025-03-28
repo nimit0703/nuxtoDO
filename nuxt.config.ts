@@ -19,7 +19,7 @@ export default defineNuxtConfig({
     '@sidebase/nuxt-auth',
     '@nuxt/image'
   ],
-
+  plugins: ["~/plugins/quill.ts"],
   ui:{},
   
   nuxtServerUtils:{

@@ -7,12 +7,14 @@ import type { BoardDocument } from "~/server/models/board.model";
 interface Props {
   type: "create" | "update";
   initialData?: Partial<BoardDocument>;
+  imagesData: [any]
   onUpdate?: (data?: any) => void;
   onCreate?: (data?: any) => void;
 }
 
 const porps = withDefaults(defineProps<Props>(), {
   type: "create",
+  imagesData : []
 });
 
 const isLoading = ref(false);
@@ -86,7 +88,7 @@ watchEffect(() => {
     </UFormGroup>
 
     <UFormGroup class="mb-4" name="coverImage" label="Select cover image">
-      <ImagePicker v-model="formState.coverImage" />
+      <ImagePicker v-model="formState.coverImage"  :imagesData="imagesData"/>
     </UFormGroup>
 
     <UButton type="submit" color="primary" block :loading="isLoading">

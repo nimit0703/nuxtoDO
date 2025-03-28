@@ -30,6 +30,7 @@
     "bcrypt": "^5.1.1",
     "bcryptjs": "^2.4.3",
     "next-auth": "4.21.1",
+    "quill": "^2.0.3",
     "stripe": "^14.4.0",
     "vuedraggable": "^4.1.0"
   }

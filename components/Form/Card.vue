@@ -96,7 +96,6 @@ watchEffect(() => {
     <UFormGroup class="mb-4" name="title" label="Title">
       <UInput type="text" v-model="formState.title" autofocus />
     </UFormGroup>
-
     <UFormGroup class="mb-4" name="description" label="Description">
       <ClientOnly>
         <QuillEditor
