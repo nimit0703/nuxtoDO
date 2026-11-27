@@ -1,5 +1,6 @@
 import { Board } from "~/server/models/board.model";
 import { List } from "~/server/models/List.model";
+import { Card } from "~/server/models/Card.model";
 
 export default defineEventHandler(async (event) => {
   const boardId = getRouterParam(event, "boardId");
@@ -17,7 +18,8 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Delete all lists associated with the board
+  // Delete the board's lists and their cards
+  await Card.deleteMany({ list: { $in: deletedBoard.lists }, owner: user._id });
   await List.deleteMany({
     board: deletedBoard._id,
     owner: user._id,

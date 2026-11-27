@@ -1,6 +1,12 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   devtools: { enabled: true },
+  app: {
+    pageTransition: { name: "page", mode: "out-in" },
+    head: {
+      meta: [{ name: "theme-color", content: "#fafafa" }],
+    },
+  },
   devServer:{
     port:5173,
   },
@@ -19,7 +25,6 @@ export default defineNuxtConfig({
     '@sidebase/nuxt-auth',
     '@nuxt/image'
   ],
-  plugins: ["~/plugins/quill.ts"],
   ui:{},
   
   nuxtServerUtils:{

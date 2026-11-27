@@ -1,84 +1,65 @@
-<template>
-  <WrapperAuth title="Create an account for free">
-    <template #header>
-      <span class="text-sm mr-px">Already have an account?</span>
-      <NuxtLink to="/auth/signin" class="text-primary-500"> Sign In </NuxtLink>
-    </template>
-
-    <UForm :state="formState" :schema="SignupSchema" @submit="handleSubmit">
-      <UFormGroup class="mb-4" name="name" label="Name">
-        <UInput v-model="formState.name" type="text" placeholder="John Doe" />
-      </UFormGroup>
-
-      <UFormGroup class="mb-4" name="email" label="Email">
-        <UInput
-          v-model="formState.email"
-          type="email"
-          placeholder="john@email.com"
-        />
-      </UFormGroup>
-      <UFormGroup class="mb-4" name="password" label="Password">
-        <UInput
-          v-model="formState.password"
-          type="password"
-          placeholder="********"
-        />
-      </UFormGroup>
-      <UFormGroup class="mb-4" name="passwordConfirm" label="Confirm Password">
-        <UInput
-          v-model="formState.passwordConfirm"
-          type="password"
-          placeholder="********"
-        />
-      </UFormGroup>
-      <UFormGroup>
-        <UButton :loading="isLoading" type="submit" color="primary" block>
-          Sign Up
-        </UButton>
-      </UFormGroup>
-    </UForm>
-  </WrapperAuth>
-</template>
 <script lang="ts" setup>
 import type { FormSubmitEvent } from "@nuxt/ui/dist/runtime/types";
-import type { z } from "h3-zod";
+import type { z } from "zod";
 import SignupSchema from "~/schemas/Signup.schemas";
 
-useHead({
-  title: "Signup",
-});
+useHead({ title: "Create account" });
 
-const formState = ref({
+const formState = reactive({
   name: undefined,
   email: undefined,
   password: undefined,
   passwordConfirm: undefined,
 });
-
 const isLoading = ref(false);
 
-async function handleSubmit(
-  event: FormSubmitEvent<z.output<typeof SignupSchema>>
-) {
+async function handleSubmit(event: FormSubmitEvent<z.output<typeof SignupSchema>>) {
+  isLoading.value = true;
   try {
-    debugger
-    isLoading.value = true;
-    await useFetch("/api/auth/signup", {
-      method: "POST",
-      body: event.data,
-    });
+    await $fetch("/api/auth/signup", { method: "POST", body: event.data });
     useToast().add({
       title: "Account created",
-      description:
-        "Your account has been created successfully, Redirecting you to the sign in page",
+      description: "Sign in to get started.",
+      color: "green",
+      icon: "i-heroicons-check-circle",
     });
-    await useRouter().push({
-      name: "auth-signin",
-    });
-  } catch (error) {
-    console.log(error);
+    await navigateTo("/auth/signin");
+  } catch (e) {
+    toastError(e);
   } finally {
     isLoading.value = false;
   }
 }
 </script>
+
+<template>
+  <WrapperAuth title="Create your account" subtitle="Organize anything with boards, lists and cards.">
+    <UForm :state="formState" :schema="SignupSchema" class="space-y-4" @submit="handleSubmit">
+      <UFormGroup name="name" label="Name">
+        <UInput v-model="formState.name" autocomplete="name" size="lg" autofocus />
+      </UFormGroup>
+      <UFormGroup name="email" label="Email">
+        <UInput v-model="formState.email" type="email" autocomplete="email" size="lg" />
+      </UFormGroup>
+      <UFormGroup name="password" label="Password" hint="8+ characters">
+        <UInput v-model="formState.password" type="password" autocomplete="new-password" size="lg" />
+      </UFormGroup>
+      <UFormGroup name="passwordConfirm" label="Confirm password">
+        <UInput
+          v-model="formState.passwordConfirm"
+          type="password"
+          autocomplete="new-password"
+          size="lg"
+        />
+      </UFormGroup>
+      <UButton :loading="isLoading" type="submit" block size="lg">Create account</UButton>
+    </UForm>
+
+    <template #footer>
+      Already have an account?
+      <NuxtLink to="/auth/signin" class="font-medium text-primary-500 hover:underline">
+        Sign in
+      </NuxtLink>
+    </template>
+  </WrapperAuth>
+</template>

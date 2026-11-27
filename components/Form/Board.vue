@@ -1,100 +1,45 @@
 <script lang="ts" setup>
-import type { FormSubmitEvent } from "@nuxt/ui/dist/runtime/types";
-import type { z } from "h3-zod";
 import BoardSchema from "~/schemas/Board.schemas";
 import type { BoardDocument } from "~/server/models/board.model";
 
-interface Props {
-  type: "create" | "update";
-  initialData?: Partial<BoardDocument>;
-  imagesData: [any]
-  onUpdate?: (data?: any) => void;
-  onCreate?: (data?: any) => void;
-}
-
-const porps = withDefaults(defineProps<Props>(), {
-  type: "create",
-  imagesData : []
-});
+const props = defineProps<{ initialData?: BoardDocument }>();
+const emit = defineEmits<{ (e: "saved"): void }>();
 
 const isLoading = ref(false);
-const formState = reactive<Partial<BoardDocument>>({
-  name: undefined,
-  coverImage: undefined,
+const formState = reactive({
+  name: props.initialData?.name,
+  coverImage: props.initialData?.coverImage ?? null,
 });
 
-async function handleSubmit(
-  event: FormSubmitEvent<z.output<typeof BoardSchema>>
-) {
+async function handleSubmit() {
+  isLoading.value = true;
   try {
-    isLoading.value = true;
-    if (porps.type === "update" && porps.initialData?._id) {
-      const updatedBoard = await useFetch(
-        `/api/boards/${porps.initialData._id}`,
-        {
-          method: "PUT",
-          body: event.data,
-          watch: false,
-        }
-      );
-      porps.onUpdate?.(updatedBoard);
-      return;
-    }
-
-    const { data, error } = await useFetch("/api/boards", {
-      method: "POST",
-      body: event.data,
-      watch: false,
+    const id = props.initialData?._id;
+    await $fetch(id ? `/api/boards/${id}` : "/api/boards", {
+      method: id ? "PUT" : "POST",
+      body: formState,
     });
-
-    if (error.value) {
-      if (error.value.statusCode === 403) {
-        useSubscription().showSubscriptionModal({
-          title: "Multiple boards is a Premium Feature",
-          description:
-            "You can create only one board in free plan. Please upgrade to premium to create more boards.",
-        });
-      }
-    }
-
-    porps.onCreate?.(data);
+    emit("saved");
   } catch (e) {
+    toastError(e);
   } finally {
     isLoading.value = false;
   }
 }
-
-watchEffect(() => {
-  if (porps.type === "update" && porps.initialData) {
-    formState.name = porps.initialData.name;
-    formState.coverImage = porps.initialData.coverImage;
-  }
-
-  if (porps.type === "create") {
-    formState.name = undefined;
-    formState.coverImage = undefined;
-  }
-});
 </script>
+
 <template>
-  <UForm
-    :state="formState"
-    :schema="BoardSchema"
-    class="p-4"
-    @submit="handleSubmit"
-  >
-    <UFormGroup class="mb-4" name="name" label="Board Name">
-      <UInput v-model="formState.name" type="text" placeholder="Board name" />
+  <UForm :state="formState" :schema="BoardSchema" class="space-y-5" @submit="handleSubmit">
+    <UFormGroup name="name" label="Name">
+      <UInput v-model="formState.name" placeholder="e.g. Product launch" size="lg" autofocus />
     </UFormGroup>
 
-    <UFormGroup class="mb-4" name="coverImage" label="Select cover image">
-      <ImagePicker v-model="formState.coverImage"  :imagesData="imagesData"/>
+    <UFormGroup name="coverImage" label="Cover">
+      <ImagePicker v-model="formState.coverImage" />
     </UFormGroup>
 
-    <UButton type="submit" color="primary" block :loading="isLoading">
-      {{ type === "create" ? "Create board" : "Update board" }}
+    <UButton type="submit" block size="lg" :loading="isLoading">
+      {{ initialData ? "Save changes" : "Create board" }}
     </UButton>
   </UForm>
 </template>
-
-<style></style>

@@ -1,11 +1,9 @@
-import { defineNuxtPlugin } from "#app";
-import { QuillEditor } from "@vueup/vue-quill";
 import "@vueup/vue-quill/dist/vue-quill.snow.css";
 
+// Lazy chunk: Quill only downloads when a card editor opens (always inside <ClientOnly>)
 export default defineNuxtPlugin((nuxtApp) => {
-  if (process.client) {
-    import('@vueup/vue-quill').then(({ QuillEditor }) => {
-      nuxtApp.vueApp.component('QuillEditor', QuillEditor)
-    })
-  }
-})
+  nuxtApp.vueApp.component(
+    "QuillEditor",
+    defineAsyncComponent(() => import("@vueup/vue-quill").then((m) => m.QuillEditor))
+  );
+});

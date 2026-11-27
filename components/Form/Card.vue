@@ -1,135 +1,101 @@
 <script lang="ts" setup>
-import type { FormSubmitEvent } from "@nuxt/ui/dist/runtime/types";
-import { z } from "h3-zod";
 import CardSchema from "~/schemas/Card.schema";
 import type { CardDocument } from "~/server/models/Card.model";
 
-interface Props {
-  type: "create" | "update";
-  listId: string;
-  initialData?: Partial<CardDocument>;
-  onCreate?: () => void;
-  onUpdate?: () => void;
-}
+const props = defineProps<{ listId: string; initialData?: CardDocument }>();
+const emit = defineEmits<{ (e: "saved"): void }>();
 
-const props = withDefaults(defineProps<Props>(), {
-  type: "create",
-});
-
-const PartialCardSchema = CardSchema.partial();
-
+const { destroy } = useCard();
+const form = ref();
 const isLoading = ref(false);
-const formState = reactive<z.infer<typeof PartialCardSchema>>({
-  title: undefined,
-  description: undefined,
+const formState = reactive({
+  title: props.initialData?.title,
+  description: props.initialData?.description ?? undefined,
   list: props.listId,
 });
 
-async function handleSubmit(e: FormSubmitEvent<z.output<typeof CardSchema>>) {
+async function handleSubmit() {
+  isLoading.value = true;
   try {
-    isLoading.value = true;
-
-    if ((props.type === "update", props.initialData)) {
-      await useFetch(
-        `/api/lists/${props.listId}/cards/${props.initialData._id}`,
-        {
-          method: "PUT",
-          body: JSON.stringify(e.data),
-          watch: false,
-        }
-      );
-      props.onUpdate?.();
-      return;
-    }
-
-    await useFetch(`/api/lists/${props.listId}/cards`, {
-      method: "POST",
-      body: JSON.stringify(e.data),
-      watch: false,
+    const id = props.initialData?._id;
+    await $fetch(id ? `/api/lists/${props.listId}/cards/${id}` : `/api/lists/${props.listId}/cards`, {
+      method: id ? "PUT" : "POST",
+      body: formState,
     });
-    props.onCreate?.();
-  } catch (e: any) {
-    useToast().add({
-      title: "Error",
-      description: e.message || "Something went wrong",
-    });
+    emit("saved");
+  } catch (e) {
+    toastError(e);
   } finally {
     isLoading.value = false;
   }
 }
 
-async function handleDelete() {
-  try {
-    isLoading.value = true;
-    await useFetch(
-      `/api/lists/${props.listId}/cards/${props.initialData?._id}`,
-      {
-        method: "DELETE",
-        watch: false,
-      }
-    );
-    props.onUpdate?.();
-  } catch (e: any) {
-    useToast().add({
-      title: "Error",
-      description: e.message || "Something went wrong",
-    });
-  } finally {
-    isLoading.value = false;
-  }
+function handleDelete() {
+  destroy(props.listId, props.initialData!._id, () => emit("saved"));
 }
-
-watchEffect(() => {
-  if (props.type === "update" && props.initialData) {
-    formState.title = props.initialData.title;
-    formState.description = props.initialData.description;
-  }
-
-  if (props.type === "create") {
-    formState.title = undefined;
-    formState.description = undefined;
-  }
-});
 </script>
+
 <template>
-  <UForm :state="formState" :schema="CardSchema" @submit="handleSubmit">
-    <UFormGroup class="mb-4" name="title" label="Title">
-      <UInput type="text" v-model="formState.title" autofocus />
+  <UForm
+    ref="form"
+    :state="formState"
+    :schema="CardSchema"
+    class="space-y-5"
+    @submit="handleSubmit"
+    @keydown.meta.enter.prevent="form?.submit()"
+    @keydown.ctrl.enter.prevent="form?.submit()"
+  >
+    <UFormGroup name="title" label="Title">
+      <UInput v-model="formState.title" placeholder="What needs doing?" size="lg" autofocus />
     </UFormGroup>
-    <UFormGroup class="mb-4" name="description" label="Description">
+
+    <UFormGroup name="description" label="Notes">
       <ClientOnly>
         <QuillEditor
           v-model:content="formState.description"
           theme="snow"
           toolbar="minimal"
           content-type="html"
+          placeholder="Add more detail…"
         />
+        <template #fallback>
+          <div class="h-40 animate-pulse rounded-lg bg-neutral-100 dark:bg-neutral-800" />
+        </template>
       </ClientOnly>
     </UFormGroup>
 
-    <div class="flex gap-4 mt-4 justify-end">
+    <div class="flex items-center gap-3">
       <UButton
-        v-if="type === 'update'"
-        type="button"
-        :loading="isLoading"
+        v-if="initialData"
         color="red"
-        variant="soft"
+        variant="ghost"
         icon="i-heroicons-trash"
+        aria-label="Delete card"
         @click="handleDelete"
-      >
-      </UButton>
-      <UButton type="submit" :loading="isLoading" :block="type === 'create'">
-        {{ type === "create" ? "Create card" : "Update card" }}
+      />
+      <span class="ml-auto hidden text-xs text-neutral-400 sm:inline">⌘/Ctrl + Enter to save</span>
+      <UButton type="submit" :loading="isLoading" size="lg">
+        {{ initialData ? "Save" : "Add card" }}
       </UButton>
     </div>
   </UForm>
 </template>
 
 <style>
-.ql-container {
-  @apply h-32 rounded-b-lg shadow;
+.ql-toolbar.ql-snow {
+  @apply rounded-t-lg border-neutral-200 dark:border-neutral-700;
 }
-.ql-toolbar {
-  @apply rounded-t-lg;
+.ql-container.ql-snow {
+  @apply h-36 rounded-b-lg border-neutral-200 text-sm dark:border-neutral-700;
+  font-family: inherit;
+}
+.dark .ql-snow .ql-stroke {
+  stroke: theme("colors.neutral.300");
+}
+.dark .ql-snow .ql-fill {
+  fill: theme("colors.neutral.300");
+}
+.dark .ql-editor.ql-blank::before {
+  color: theme("colors.neutral.500");
 }
 </style>
